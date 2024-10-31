@@ -1,5 +1,5 @@
-# sehatgang-lease-insights
-Analyze your lease contracts with AI
+## sehatgang-lease-insights
+#### Analyze your lease contracts with AI
 
 ### Naming Conventions
 - **Lower Case/Pascal Case** for folder names. `numberofdonuts`/`NumberOfDonuts`
