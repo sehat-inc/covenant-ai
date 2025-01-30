@@ -1,0 +1,76 @@
+{% extends 'base.html' %}
+
+{% block title %}Lessee Mode - LeaseAI{% endblock %}
+
+{% block content %}
+<div class="container mx-auto p-8">
+    <h1 class="text-3xl font-semibold mb-8 text-white">Lessee Mode</h1>
+    <section class="bg-gray-800 p-6 rounded-lg shadow-md">
+        <form action="/lessee" method="post" enctype="multipart/form-data" class="space-y-6">
+            <div class="flex items-center justify-center w-full">
+                <label for="dropzone-file" class="flex flex-col items-center justify-center w-full h-64 border-2 border-gray-700 border-dashed rounded-lg cursor-pointer bg-gray-700 hover:bg-gray-600 transition-colors duration-200">
+                    <div class="flex flex-col items-center justify-center pt-5 pb-6">
+                        <svg class="w-10 h-10 mb-3 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"></path></svg>
+                        <p class="mb-2 text-sm text-gray-400"><span class="font-semibold">Click to upload</span> or drag and drop</p>
+                        <p class="text-xs text-gray-400">PDF files only</p>
+                    </div>
+                    <input id="dropzone-file" type="file" name="file" class="hidden" />
+                </label>
+            </div>
+            <button type="submit" class="w-full button-transparent transition-colors duration-200">
+                Analyze Contract
+            </button>
+        </form>
+    </section>
+    {% if processed %}
+        <section id="processing-results" class="mt-8 space-y-6">
+            <!-- Results will be dynamically inserted here -->
+            <div>
+                <h2 class="text-2xl font-semibold mb-4 text-gray-200">Extracted Text</h2>
+                <div class="bg-gray-700 p-4 rounded-lg shadow-md text-gray-300">
+
+                </div>
+            </div>
+
+            <div>
+                <h2 class="text-2xl font-semibold mb-4 text-gray-200">Key Terms</h2>
+                <div class="bg-gray-700 p-4 rounded-lg shadow-md text-gray-300">
+
+                </div>
+            </div>
+
+            <div>
+                <h2 class="text-2xl font-semibold mb-4 text-gray-200">Summary</h2>
+                <div class="bg-gray-700 p-4 rounded-lg shadow-md text-gray-300">
+
+                </div>
+            </div>
+            <div>
+                <h2 class="text-2xl font-semibold mb-4 text-gray-200">Clauses</h2>
+                <div class="bg-gray-700 p-4 rounded-lg shadow-md text-gray-300">
+
+                </div>
+            </div>
+
+            <button class="bg-gray-700 hover:bg-gray-600 text-white font-semibold py-2 px-4 rounded transition-colors duration-200">
+                Download Results
+            </button>
+
+            <div class="mt-8">
+                <h2 class="text-2xl font-semibold mb-4 text-gray-200">Chat with AI</h2>
+                <div class="bg-gray-700 p-4 rounded-lg shadow-md">
+                    <div id="chat-output" class="h-48 overflow-y-auto mb-4 text-gray-300">
+
+                    </div>
+                    <div class="flex space-x-2">
+                        <input type="text" id="chat-input" class="flex-grow border border-gray-700 bg-gray-800 text-gray-300 px-4 py-2 rounded-lg focus:outline-none focus:ring-2 focus:ring-gray-500" placeholder="Ask a question...">
+                        <button type="submit" class="w-full button-transparent transition-colors duration-200">
+                            Send
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </section>
+    {% endif %}
+</div>
+{% endblock %}

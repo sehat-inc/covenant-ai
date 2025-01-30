@@ -1,0 +1,97 @@
+{% extends 'base.html' %}
+
+{% block title %}Lessor Mode - LeaseAI{% endblock %}
+
+{% block content %}
+<div class="container mx-auto p-8">
+    <h1 class="text-3xl font-semibold mb-8 text-white">Lessor Mode</h1>
+
+    <!-- Dashboard Overview -->
+    <section class="mb-8 grid grid-cols-1 md:grid-cols-3 gap-6">
+        <div class="bg-gray-800 rounded-lg shadow-md p-6">
+            <h3 class="text-xl font-semibold mb-2 text-gray-200">Contracts Analyzed</h3>
+            <p class="text-3xl font-bold text-gray-100">120</p>
+        </div>
+        <div class="bg-gray-800 rounded-lg shadow-md p-6">
+            <h3 class="text-xl font-semibold mb-2 text-gray-200">Average Risk Score</h3>
+            <p class="text-3xl font-bold text-gray-100">7.8/10</p>
+        </div>
+        <div class="bg-gray-800 rounded-lg shadow-md p-6">
+            <h3 class="text-xl font-semibold mb-2 text-gray-200">Compliance Issues</h3>
+            <p class="text-3xl font-bold text-gray-100">5</p>
+        </div>
+    </section>
+
+    <section class="mb-8 flex space-x-4">
+        <a href="#" class="bg-gray-700 hover:bg-gray-600 text-white font-semibold py-2 px-4 rounded inline-flex items-center transition-colors duration-200">
+            <i class="fas fa-file-upload mr-2"></i> Upload New Contract
+        </a>
+        <a href="#" class="bg-gray-700 hover:bg-gray-600 text-white font-semibold py-2 px-4 rounded inline-flex items-center transition-colors duration-200">
+            <i class="fas fa-chart-line mr-2"></i> View Risk Report
+        </a>
+    </section>
+
+    <!-- Risk Assessment Section -->
+    <section class="mb-8 bg-gray-800 p-6 rounded-lg shadow-md">
+        <h2 class="text-2xl font-semibold mb-4 text-gray-200">Risk Assessment</h2>
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div>
+                <label for="asset-value" class="block mb-2 text-sm font-medium text-gray-300">Asset Value</label>
+                <input type="text" id="asset-value" class="bg-gray-700 border border-gray-700 text-gray-200 text-sm rounded-lg focus:ring-gray-500 focus:border-gray-500 block w-full p-2.5" placeholder="$50,000">
+            </div>
+            <div>
+                <label for="lease-term" class="block mb-2 text-sm font-medium text-gray-300">Lease Term (months)</label>
+                <input type="number" id="lease-term" class="bg-gray-700 border border-gray-700 text-gray-200 text-sm rounded-lg focus:ring-gray-500 focus:border-gray-500 block w-full p-2.5" placeholder="36">
+            </div>
+            <!-- Add more input fields as needed -->
+            <div class="col-span-2">
+                <button type="submit" class="w-full button-transparent transition-colors duration-200">
+                    Calculate Risk
+                </button>
+            </div>
+        </div>
+        <!-- Risk assessment chart/graph here -->
+        <div class="mt-6">
+            <!-- Placeholder for risk chart -->
+            <div class="h-64 bg-gray-700 rounded-lg flex items-center justify-center text-gray-400">
+                Risk Analysis Chart
+            </div>
+        </div>
+    </section>
+
+    <!-- Compliance Check Section -->
+    <section class="mb-8 bg-gray-800 p-6 rounded-lg shadow-md">
+        <h2 class="text-2xl font-semibold mb-4 text-gray-200">Compliance Check</h2>
+        <!-- Placeholder for compliance content -->
+        <div class="bg-gray-700 rounded-lg p-4">
+            <ul class="list-disc pl-5 space-y-2 text-gray-300">
+                <li>Contract term does not exceed regulatory limit.</li>
+                <li class="text-red-400">Depreciation schedule needs review.</li>
+                <li>All required clauses are present.</li>
+            </ul>
+        </div>
+    </section>
+
+    <!-- Contract Comparison Section -->
+    <section class="bg-gray-800 p-6 rounded-lg shadow-md">
+        <h2 class="text-2xl font-semibold mb-4 text-gray-200">Contract Comparison</h2>
+        <div class="flex space-x-4 mb-4">
+            <input type="file" class="border border-gray-700 bg-gray-700 text-gray-200 p-2 rounded">
+            <input type="file" class="border border-gray-700 bg-gray-700 text-gray-200 p-2 rounded">
+        </div>
+        <div class="grid grid-cols-2 gap-4">
+            <div class="bg-gray-700 p-4 rounded-lg text-gray-300">
+                <!-- Contract 1 content -->
+            </div>
+            <div class="bg-gray-700 p-4 rounded-lg text-gray-300">
+                <!-- Contract 2 content -->
+            </div>
+        </div>
+        <div class="mt-4">
+            <button type="submit" class="w-full button-transparent transition-colors duration-200">
+    Compare Contract
+</button>
+        </div>
+    </section>
+</div>
+{% endblock %}
