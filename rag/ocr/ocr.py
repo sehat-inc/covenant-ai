@@ -16,6 +16,7 @@ import fitz  # PyMuPDF
 from PIL import Image
 import pytesseract
 import os
+import time
 
 # Configure logging
 logging.basicConfig(
@@ -205,10 +206,10 @@ def main():
     # testing
     
     base_dir = os.path.dirname(os.path.abspath(__file__))
-    pdf_path = os.path.join(base_dir, '..', 'data', 'raw', 'testPDf.pdf')
+    pdf_path = os.path.join(base_dir, '..', 'data', 'raw', 'Extract4.pdf')
     print(pdf_path)
     output_dir = os.path.join(base_dir, '..', 'data', 'processed')
-
+    start_time = time.time()
     try:
         # Initialize and run extractor
         extractor = PDFTextExtractor(pdf_path, output_dir)
@@ -226,6 +227,10 @@ def main():
 
     except Exception as e:
         logger.error(f"Extraction failed: {str(e)}")
+    finally:
+        end_time = time.time()
+        extraction_time = end_time - start_time
+        logger.info(f"Extraction completed in {extraction_time:.2f} seconds")
 
 
 if __name__ == "__main__":
