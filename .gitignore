@@ -35,6 +35,7 @@ build/
 .ipynb_checkpoints
 
 # Testing
+*tests
 .coverage
 htmlcov/
 .tox/
