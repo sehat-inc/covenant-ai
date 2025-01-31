@@ -2,6 +2,7 @@
 Author: Hamza Amin
 Description: Extract text and tables from PDF files using PyMuPDF and pdfplumber
 Date: 2025-30-01
+
 """
 
 import pdfplumber
@@ -107,10 +108,7 @@ class PDFTextExtractor:
                                 content=processed_table,
                                 page_number=page.page_number,
                                 location=(
-                                    0,
-                                    0,
-                                    0,
-                                    0,
+                                    0, 0, 0, 0,                                
                                 ),  # Default bbox since pdfplumber page doesn't provide it directly
                             )
                         )
@@ -203,8 +201,8 @@ class PDFTextExtractor:
 
 
 def main():
-    # Test PDF path and output directory
-    pdf_path = r"input_pdfs\testPDf.pdf"  # Replace with your PDF path
+    # testing
+    pdf_path = r"input_pdfs\testPDf.pdf"  
     output_dir = "extracted_output"
 
     try:
