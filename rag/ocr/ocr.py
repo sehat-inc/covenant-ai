@@ -234,3 +234,7 @@ def main():
 
 if __name__ == "__main__":
     main()
+
+
+# NOTE : The main function here is just for the testing purposes. Also the text file is also made for the testing purposes.
+# The main function will be excluded from the final code, and this file will be used as a module in the main script.
