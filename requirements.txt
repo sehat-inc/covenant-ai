@@ -9,4 +9,3 @@ pdfplumber
 pandas
 PyMuPDF
 pillow
-pytesseract

@@ -1,4 +1,4 @@
-#### Analyze your lease contracts with AI
+## Analyze your lease contracts with AI
 
 ### Naming Conventions
 - **Lower Case/Pascal Case** for folder names. `numberofdonuts`/`NumberOfDonuts`
