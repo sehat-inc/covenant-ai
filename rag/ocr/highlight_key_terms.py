@@ -6,7 +6,6 @@ import time
 
 import re 
 from nltk.corpus import stopwords
-import nltk
 
 # Load model
 model = SentenceTransformer('all-MiniLM-L6-v2')
