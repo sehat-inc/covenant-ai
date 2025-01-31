@@ -110,6 +110,7 @@ pydantic                                 2.10.6
 pydantic_core                            2.27.2
 pydot                                    3.0.4
 Pygments                                 2.19.1
+PyMuPDF                                  1.25.2
 pyparsing                                3.2.1
 pypdfium2                                4.30.1
 PyPika                                   0.48.9
