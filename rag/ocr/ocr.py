@@ -15,6 +15,7 @@ from dataclasses import dataclass
 import fitz  # PyMuPDF
 from PIL import Image
 import pytesseract
+import os
 
 # Configure logging
 logging.basicConfig(
@@ -202,8 +203,11 @@ class PDFTextExtractor:
 
 def main():
     # testing
-    pdf_path = r"input_pdfs\testPDf.pdf"  
-    output_dir = "extracted_output"
+    
+    base_dir = os.path.dirname(os.path.abspath(__file__))
+    pdf_path = os.path.join(base_dir, '..', 'data', 'raw', 'testPDf.pdf')
+    print(pdf_path)
+    output_dir = os.path.join(base_dir, '..', 'data', 'processed')
 
     try:
         # Initialize and run extractor
