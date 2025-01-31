@@ -203,7 +203,6 @@ class PDFTextExtractor:
 
 
 def main():
-    # testing
     
     base_dir = os.path.dirname(os.path.abspath(__file__))
     pdf_path = os.path.join(base_dir, '..', 'data', 'raw', 'Extract4.pdf')
