@@ -2,6 +2,9 @@
 name: Deploy static content to Pages
 
 on:
+  push: 
+    branches: 
+      - prod
   workflow_dispatch:
 
 # Sets permissions of the GITHUB_TOKEN to allow deployment to GitHub Pages
@@ -40,3 +43,4 @@ jobs:
       - name: Deploy to GitHub Pages
         id: deployment
         uses: actions/deploy-pages@v4
+      
