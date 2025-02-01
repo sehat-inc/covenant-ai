@@ -1,12 +1,18 @@
+
+
+
 import fitz
 from sentence_transformers import SentenceTransformer
 from sklearn.metrics.pairwise import cosine_similarity
+#NOTE: WHAT THE HELL IS GOING ON HERE COSINE WAS THE BASE FOR THIS MODULE BUT YOU HAVE EXCLUDED IT
 import numpy as np
 import time 
 
 import re 
 from nltk.corpus import stopwords
+
 import nltk
+nltk.download('stopwords')
 
 # Load model
 model = SentenceTransformer('all-MiniLM-L6-v2')
@@ -250,7 +256,7 @@ This document, a French Master Lease and Servicing Agreement, was originally dat
 
 start = time.time()
 
-phrases = process_lease_contract(r"C:\Users\pc\Desktop\covenant-ai\rag\data\raw\Extract4.pdf", "extract_4_highlightv4.pdf", summary)
+phrases = process_lease_contract(r"C:\Users\mh407\OneDrive\Documents\HackaThon\covenant-ai\rag\data\raw\Extract4.pdf", "extract_4_highlightv4.pdf", summary)
 
 end = time.time()
 
