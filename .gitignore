@@ -43,3 +43,5 @@ htmlcov/
 
 # mypy
 .mypy_cache/
+
+firebase_api.json
