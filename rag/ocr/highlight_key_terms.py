@@ -82,6 +82,7 @@ def split_into_sentences(text):
     
     return sentences
 
+#NOTE: WTF is going on this function. I have no idea
 def compute_semantic_similarity(summary, sentences):
     """
     Compute semantic similarity between a summary and sentences using improved cosine similarity.
@@ -158,8 +159,6 @@ def highlight_pdf(input_pdf, output_pdf, phrases):
         # Remove or comment out the following line:
         # page.update()
     doc.save(output_pdf)
-
-
 
 summary = """
 **French Master Lease and Servicing Agreement Summary**
@@ -253,11 +252,10 @@ This document, a French Master Lease and Servicing Agreement, was originally dat
 
 """
 
-
 start = time.time()
 
 phrases = process_lease_contract(r"C:\Users\mh407\OneDrive\Documents\HackaThon\covenant-ai\rag\data\raw\Extract4.pdf", "extract_4_highlightv4.pdf", summary)
 
 end = time.time()
 
-print(f"Total Time: {abs(start - end)}")
+print(f"Total Time: {abs(start - end)}\n")
