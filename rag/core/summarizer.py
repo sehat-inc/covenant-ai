@@ -85,7 +85,7 @@ def main():
         try:
             #NOTE: abs path used -> NEED fixing
             base_dir = os.path.dirname(os.path.abspath(__file__))
-            txt_path = os.path.join(base_dir, '..', 'data', 'processed', 'testPDf_extracted.txt')
+            txt_path = os.path.join(base_dir, '..', 'data', 'processed', 'Extract3_extracted.txt')
             
             #output_dir = os.path.join(base_dir, '..', 'data', 'summarized', '')
             #output_dir.mkdir(parents=True, exist_ok=True)
@@ -112,7 +112,7 @@ def main():
                 print(f"Summary saved to: {args.output_file}")
             else: 
                 #NOTE: Need Fixing -> outputs a file named summarized rather than a txt file in summarized folder
-                with open('/home/ali-vijdaan/Projects/covenant-ai/rag/data/summarized/summary.txt', 'w', encoding='utf-8') as file: 
+                with open('/home/ali-vijdaan/Projects/covenant-ai/rag/data/summarized/summary_Extract3.txt', 'w', encoding='utf-8') as file: 
                     file.write(summary)
 
         except Exception as e:
