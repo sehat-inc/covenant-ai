@@ -33,6 +33,7 @@ build/
 
 # Jupyter Notebook
 .ipynb_checkpoints
+playground/
 
 # Testing
 *tests
