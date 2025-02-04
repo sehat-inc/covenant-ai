@@ -6,7 +6,7 @@ project_root = os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
 sys.path.append(project_root)
 
 # Import project modules
-from rag.ocr.pdfExtractor import PDFExtractor
+from rag.ocr.pdfExtractor import PDFTextExtractor
 from flask import Flask, render_template, request, redirect, url_for, send_file
 from werkzeug.utils import secure_filename
 from supabase import create_client, Client
@@ -95,8 +95,8 @@ def upload_file():
             file.save(temp_path)
             
             # Extract text using OCR
-            extractor = PDFExtractor(temp_path)
-            extracted_content = extractor.extract()
+            extractor = PDFTextExtractor(temp_path)
+            extracted_content = extractor.extract_text()
             print("Extraction done ", datetime.now().time())
             # Get text from all pages
             all_text = "\n".join([page['text'] for page in extracted_content['text']])

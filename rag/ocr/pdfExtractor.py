@@ -36,7 +36,7 @@ class TableData:
 
 
 class PDFTextExtractor:
-    def __init__(self, pdf_path: str, output_dir: str):
+    def __init__(self, pdf_path: str):
         """
         Initialize the PDF text extractor
 
@@ -45,8 +45,6 @@ class PDFTextExtractor:
             output_dir: Directory to store output files
         """
         self.pdf_path = Path(pdf_path)
-        self.output_dir = Path(output_dir)
-        self.output_dir.mkdir(parents=True, exist_ok=True)
         self.extracted_text = []
         self.tables = []
 
