@@ -70,6 +70,7 @@ class SummarizerAgent:
         except Exception as e: 
             return f"Error processing contract: {str(e)}"
 
+
 def main(): 
     """
     Main function to run the contract summarizer 

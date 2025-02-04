@@ -95,8 +95,8 @@ def upload_file():
             file.save(temp_path)
             
             # Extract text using OCR
-            extractor = PDFExtractor(temp_path, temp_dir)
-            extracted_content = extractor.extract_text()
+            extractor = PDFExtractor(temp_path)
+            extracted_content = extractor.extract()
             print("Extraction done ", datetime.now().time())
             # Get text from all pages
             all_text = "\n".join([page['text'] for page in extracted_content['text']])
