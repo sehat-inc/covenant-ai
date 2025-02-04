@@ -1,0 +1,51 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container py-5">
+    <!-- Add some debug information -->
+    <div class="alert alert-info">
+        <strong>Debug Info:</strong>
+        <p>Contract ID: {{ contract.id }}</p>
+        <p>Created At: {{ contract.created_at }}</p>
+        <p>PDF Filename: {{ contract.contract_pdf }}</p>
+    </div>
+
+
+<div class="container py-5">
+    <div class="row mb-4">
+        <div class="col">
+            <h1>Contract Details</h1>
+            <p class="text-muted">Uploaded on: {{ contract.created_at|format_datetime }}</p>
+        </div>
+    </div>
+
+    <div class="btn-group" role="group">
+        <a href="{{ contract.pdf_url }}" target="_blank" class="btn btn-primary">
+            View Contract
+        </a>
+        <a href="{{ url_for('download_contract', contract_id=contract.id) }}" class="btn btn-secondary">
+            Download Contract
+        </a>
+    </div>
+
+    <div class="row">
+        <div class="col">
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="card-title">Contract Summary</h5>
+                    <div class="contract-summary">
+                        {{ contract.contract_summary|safe }}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Floating Chat Button -->
+<div class="position-fixed bottom-0 end-0 p-3">
+    <button class="btn btn-primary rounded-circle" style="width: 60px; height: 60px;">
+        <i class="bi bi-chat-dots-fill"></i>
+    </button>
+</div>
+{% endblock %}

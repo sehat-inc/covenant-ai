@@ -1,34 +1,202 @@
-from flask import Flask, render_template, request
 
+import sys
+import os
+# Add the project root directory to Python path
+project_root = os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
+sys.path.append(project_root)
+
+# Import project modules
+from rag.ocr.pdfExtractor import PDFExtractor
+from flask import Flask, render_template, request, redirect, url_for, send_file
+from werkzeug.utils import secure_filename
+from supabase import create_client, Client
+from rag.core.summarizer import SummarizerAgent
+import google.generativeai as genai
+import tempfile
+from datetime import datetime
 app = Flask(__name__)
+app.config['UPLOAD_FOLDER'] = 'uploads'
+os.makedirs(app.config['UPLOAD_FOLDER'], exist_ok=True)
+
+# Initialize Supabase client with service_role key for admin access
+supabase: Client = create_client(
+    "https://zxdqktkeqtvurdkpoepe.supabase.co",
+    "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inp4ZHFrdGtlcXR2dXJka3BvZXBlIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTczODUxNzkwNSwiZXhwIjoyMDU0MDkzOTA1fQ.JnUAPMPijFr8S7OqmY2P6sZBIoa2ZvOZKf_Kt7O9hhQ"
+)
+
+# Initialize Gemini for summarization
+genai.configure(api_key=os.getenv('GEMINI_API'))
+model = genai.GenerativeModel("gemini-1.5-flash")
+summarizer = SummarizerAgent(llm=model)
+
+BUCKET_NAME = 'contract-files'  # Changed bucket name to be more specific
+
+def init_storage():
+    """Initialize storage bucket with proper configuration"""
+    try:
+        # List existing buckets
+        buckets = supabase.storage.list_buckets()
+        bucket_exists = any(bucket['name'] == BUCKET_NAME for bucket in buckets)
+        
+        if not bucket_exists:
+            # Create new bucket with public access
+            supabase.storage.create_bucket(
+                BUCKET_NAME,
+                options={
+                    'public': True,  # Allow public access
+                    'file_size_limit': 52428800,  # 50MB limit
+                    'allowed_mime_types': ['application/pdf']  # Only allow PDFs
+                }
+            )
+            print(f"Created new bucket: {BUCKET_NAME}")
+        else:
+            print(f"Bucket {BUCKET_NAME} already exists")
+            
+    except Exception as e:
+        print(f"Error initializing storage: {str(e)}")
+        raise
+
+# Initialize storage on startup
+#print("Initializing storage...")
+#init_storage()
+
+# Custom filter for datetime formatting
+@app.template_filter('format_datetime')
+def format_datetime(value):
+    if isinstance(value, str):
+        try:
+            dt = datetime.fromisoformat(value.replace('Z', '+00:00'))
+            return dt.strftime('%B %d, %Y %I:%M %p')
+        except ValueError:
+            return value
+    return value
 
 @app.route('/')
 def index():
-    return render_template('index.html')
+    # Fetch all contracts from Supabase
+    response = supabase.table('Contract').select('*').order('created_at.desc').execute()
+    contracts = response.data
+    return render_template('index.html', contracts=contracts)
 
-@app.route('/lessee', methods=['GET', 'POST'])
-def lessee():
-    if request.method == 'POST':
-        # Handle file upload and processing here
-        uploaded_file = request.files['file']
-        if uploaded_file:
-            # Process the uploaded file (placeholder)
-            # ... Your AI processing logic will go here ...
-            return render_template('lessee.html', processed=True)
+@app.route('/upload', methods=['POST'])
+def upload_file():
+    if 'contract' not in request.files:
+        return redirect(request.url)
+    
+    file = request.files['contract']
+    if file.filename == '':
+        return redirect(request.url)
+    
+    if file and file.filename.lower().endswith('.pdf'):
+        try:
+            # Save file temporarily
+            temp_dir = tempfile.mkdtemp()
+            temp_path = os.path.join(temp_dir, secure_filename(file.filename))
+            file.save(temp_path)
+            
+            # Extract text using OCR
+            extractor = PDFExtractor(temp_path, temp_dir)
+            extracted_content = extractor.extract_text()
+            print("Extraction done ", datetime.now().time())
+            # Get text from all pages
+            all_text = "\n".join([page['text'] for page in extracted_content['text']])
+            
+            # Generate summary
+            summary = summarizer._run(text=all_text)
+            print("Summary made: ", datetime.now().time())
+            # Generate unique filename
+            timestamp = datetime.now().strftime('%Y%m%d_%H%M%S')
+            file_name = f"{timestamp}_{secure_filename(file.filename)}"
+            
+            # Upload PDF to Supabase Storage
+            with open(temp_path, 'rb') as f:
+                file_data = f.read()
+                # Upload using the raw file data
+                result = supabase.storage.from_(BUCKET_NAME).upload(
+                    path=file_name,
+                    file=file_data,
+                    file_options={"content-type": "application/pdf"}
+                )
+                print(f"Upload result: {result}")
+            
+            # Create database entry
+            contract_data = {
+                'created_at': datetime.now().isoformat(),
+                'contract_pdf': file_name,
+                'contract_summary': summary
+            }
+            
+            insert_result = supabase.table('Contract').insert(contract_data).execute()
+            print(f"Database insert result: {insert_result}")
+            print(datetime.now().time())
+            # Cleanup
+            os.remove(temp_path)
+            os.rmdir(temp_dir)
+            
+            return redirect(url_for('index'))
+            
+        except Exception as e:
+            print(f"Error during upload: {str(e)}")
+            # Cleanup on error
+            if 'temp_path' in locals() and os.path.exists(temp_path):
+                os.remove(temp_path)
+            if 'temp_dir' in locals() and os.path.exists(temp_dir):
+                os.rmdir(temp_dir)
+            return f"Error uploading file: {str(e)}", 500
+    else:
+        return "Invalid file type. Please upload a PDF.", 400
 
-    return render_template('lessee.html')
+@app.route('/contract/<int:id>')
+def view_contract(id):
+   
+        # Fetch contract details from Supabase
+        response = supabase.table('Contract').select('*').eq('id', id).execute()
+        if not response.data:
+            return "Contract not found", 404
+        
+        contract = response.data[0]
+        
+        # Get public URL correctly
+        # Remove any full URLs or double slashes from the filename
+        filename = contract['contract_pdf'].split('/')[-1]
+        contract['pdf_url'] = supabase.storage.from_(BUCKET_NAME).get_public_url(filename)
+        
+        return render_template('contract.html', contract=contract)
 
-@app.route('/lessor')
-def lessor():
-    return render_template('lessor.html')
 
-@app.route('/about')
-def about():
-    return render_template('about.html')
-
-@app.route('/contact')
-def contact():
-    return render_template('contact.html')
+@app.route('/download/<int:contract_id>')
+def download_contract(contract_id):
+    try:
+        # Fetch contract details from Supabase
+        response = supabase.table('Contract').select('*').eq('id', contract_id).execute()
+        if not response.data:
+            return "Contract not found", 404
+        
+        contract = response.data[0]
+        
+        # Create a temporary file
+        temp_file = tempfile.NamedTemporaryFile(delete=False, suffix='.pdf')
+        
+        # Download the file data
+        data = supabase.storage.from_(BUCKET_NAME).download(contract['contract_pdf'])
+        
+        # Write to temporary file
+        with open(temp_file.name, 'wb') as f:
+            f.write(data)
+        
+        return send_file(
+            temp_file.name,
+            mimetype='application/pdf',
+            as_attachment=True,
+            download_name=os.path.basename(contract['contract_pdf'])
+        )
+    except Exception as e:
+        print(f"Error downloading contract: {str(e)}")
+        return f"Error downloading contract: {str(e)}", 500
+    finally:
+        # Cleanup temp file
+        if 'temp_file' in locals() and os.path.exists(temp_file.name):
+            os.unlink(temp_file.name)
 
 if __name__ == '__main__':
     app.run(debug=True)
