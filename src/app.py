@@ -18,10 +18,9 @@ app = Flask(__name__)
 app.config['UPLOAD_FOLDER'] = 'uploads'
 os.makedirs(app.config['UPLOAD_FOLDER'], exist_ok=True)
 
-# Initialize Supabase client with service_role key for admin access
 supabase: Client = create_client(
-    "https://zxdqktkeqtvurdkpoepe.supabase.co",
-    "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inp4ZHFrdGtlcXR2dXJka3BvZXBlIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTczODUxNzkwNSwiZXhwIjoyMDU0MDkzOTA1fQ.JnUAPMPijFr8S7OqmY2P6sZBIoa2ZvOZKf_Kt7O9hhQ"
+    os.getenv('SERVICE_KEY'),
+    os.getenv('ROLE_KEY')
 )
 
 # Initialize Gemini for summarization
@@ -30,35 +29,6 @@ model = genai.GenerativeModel("gemini-1.5-flash")
 summarizer = SummarizerAgent(llm=model)
 
 BUCKET_NAME = 'contract-files'  # Changed bucket name to be more specific
-
-def init_storage():
-    """Initialize storage bucket with proper configuration"""
-    try:
-        # List existing buckets
-        buckets = supabase.storage.list_buckets()
-        bucket_exists = any(bucket['name'] == BUCKET_NAME for bucket in buckets)
-        
-        if not bucket_exists:
-            # Create new bucket with public access
-            supabase.storage.create_bucket(
-                BUCKET_NAME,
-                options={
-                    'public': True,  # Allow public access
-                    'file_size_limit': 52428800,  # 50MB limit
-                    'allowed_mime_types': ['application/pdf']  # Only allow PDFs
-                }
-            )
-            print(f"Created new bucket: {BUCKET_NAME}")
-        else:
-            print(f"Bucket {BUCKET_NAME} already exists")
-            
-    except Exception as e:
-        print(f"Error initializing storage: {str(e)}")
-        raise
-
-# Initialize storage on startup
-#print("Initializing storage...")
-#init_storage()
 
 # Custom filter for datetime formatting
 @app.template_filter('format_datetime')

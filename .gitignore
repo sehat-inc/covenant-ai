@@ -46,3 +46,4 @@ htmlcov/
 .mypy_cache/
 
 firebase_api.json
+supabaseclient.py 
