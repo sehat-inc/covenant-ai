@@ -9,3 +9,14 @@
 .button-transparent:hover {
     background-color: rgba(255, 255, 255, 0.1); /* Subtle white overlay on hover */
 }
+  button:active {
+    -webkit-box-shadow: 1px 1px 13px #20232e, -1px -1px 33px #545b78;
+    box-shadow: 1px 1px 13px #20232e, -1px -1px 33px #545b78;
+    color: #d6d6d6;
+    -webkit-transition: 100ms;
+    transition: 100ms;
+  }
+  
+.button-transparent:hover {
+    background-color: rgba(255, 255, 255, 0.1); /* Subtle white overlay on hover */
+}
