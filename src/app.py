@@ -22,7 +22,7 @@ supabase: Client = create_client(
     os.getenv('SERVICE_KEY'),
     os.getenv('ROLE_KEY')
 )
-
+#fixed it
 # Initialize Gemini for summarization
 genai.configure(api_key=os.getenv('GEMINI_API'))
 model = genai.GenerativeModel("gemini-1.5-flash")
