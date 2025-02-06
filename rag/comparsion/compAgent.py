@@ -3,10 +3,11 @@ import json
 from dotenv import load_dotenv
 import os
 
-# **Correct Gemini API URL (using Google AI Gemini API)**
-# You need to replace YOUR_API_KEY with your actual Gemini API key
-# The URL below is for the Gemini Pro model (text-only model)
-GEMINI_API_URL = "https://generativelanguage.googleapis.com/v1beta/models/gemini-pro:generateContent"
+
+GEMINI_API_URL = (
+    "https://generativelanguage.googleapis.com/v1beta/models/gemini-pro:generateContent"
+)
+
 
 class GeminiAgent:
     def __init__(self, api_key):
@@ -14,148 +15,210 @@ class GeminiAgent:
 
     def compare_summaries(self, summary1, summary2):
         # Build a very detailed prompt for comparing the two summaries
+
         prompt = f"""
-Dear Gemini AI,
+                Dear AI Assistant,
+                I need you to act as an expert Contract Analyst specializing in lease agreement comparisons. 
+                I have two lease summaries that need to be meticulously compared. Please analyze them with extreme attention to detail.
 
-I have two detailed summaries of vehicle lease agreements that I need to compare comprehensively. Your task is to analyze the summaries side by side and provide a thorough comparison. Below you will find each summary followed by a list of specific areas for analysis.
+                SUMMARY 1:
+                {summary1}
 
----------------------------
-Summary 1:
-{summary1}
+                SUMMARY 2:
+                {summary2}
 
----------------------------
-Summary 2:
-{summary2}
+                Please perform an exhaustive analysis focusing on these specific areas:
 
----------------------------
-Please perform the following tasks:
+                1. FINANCIAL TERMS ANALYSIS:
+                - Compare exact monthly/annual payment amounts
+                - List all fees (administrative, processing, late fees)
+                - Compare security deposits
+                - Analyze payment schedules and due dates
+                - Compare any penalties for late payments
+                - List any hidden costs or additional charges
 
-1. **Payment Terms:**
-   - Compare the monthly payment amounts, the due dates, and any variations in how payments are structured.
-   - Identify if one contract offers a more favorable payment plan compared to the other.
+                2. LEASE DURATION AND RENEWAL:
+                - Compare initial lease terms
+                - List all renewal options and conditions
+                - Compare notice periods required for renewal
+                - Analyze automatic renewal clauses
+                - Compare lease extension possibilities
+                - List any blackout periods or seasonal restrictions
 
-2. **Lease Duration:**
-   - Examine the total lease period for each contract.
-   - Highlight any differences in renewal options, early termination provisions, or duration flexibility.
+                3. TERMINATION AND EXIT CONDITIONS:
+                - Compare early termination penalties
+                - List required notice periods
+                - Compare conditions for lease breaking
+                - Analyze default conditions
+                - Compare cure periods
+                - List any special termination rights
 
-3. **Termination Clauses:**
-   - Compare the conditions under which each contract allows early termination.
-   - Identify any penalties, fees, or notice periods that differ between the contracts.
+                4. OBLIGATIONS AND RESPONSIBILITIES:
+                - Compare maintenance responsibilities
+                - List insurance requirements
+                - Compare utility responsibilities
+                - Analyze compliance requirements
+                - Compare reporting obligations
+                - List any special duties or obligations
 
-4. **Insurance and Maintenance Provisions:**
-   - Compare the insurance requirements (comprehensive vs. minimal liability) specified.
-   - Contrast the maintenance responsibilities and how major vs. minor repairs are allocated between the parties.
+                5. SPECIAL PROVISIONS:
+                - Compare any unique clauses
+                - List special rights or privileges
+                - Compare any modification rights
+                - Analyze dispute resolution methods
+                - Compare force majeure clauses
+                - List any unusual restrictions or requirements
 
-5. **Risk and Additional Provisions:**
-   - Analyze any extra provisions or clauses that could affect the lessee’s obligations or rights.
-   - Provide a risk assessment by highlighting any potentially unfavorable terms in either summary.
+                6. RISK ASSESSMENT:
+                - Identify potential risks in each agreement
+                - Compare liability allocations
+                - List indemnification requirements
+                - Compare warranty provisions
+                - Analyze potential legal exposure
+                - Compare compliance requirements
 
-6. **Other Notable Differences:**
-   - Identify any additional differences that might impact a lessee's decision.
-   - Include any insights on clauses that do not directly fall under the categories above.
+                For each category above, please:
+                1. List exact differences with specific details
+                2. Highlight which agreement has more favorable terms
+                3. Provide specific examples where terms differ
+                4. Note any missing information that should be clarified
+                5. Flag any potentially problematic clauses or conditions
 
-Please return your answer as a well-structured JSON object with the following keys: "PaymentTerms", "LeaseDuration", "TerminationClauses", "InsuranceAndMaintenance", "RiskAnalysis", and "OtherDifferences". Each key should map to a detailed description of the differences between the two summaries based on that aspect.
+                Format your response as a JSON object with these main keys:
+                {{
+                    "FinancialAnalysis": {{}},
+                    "LeaseTerms": {{}},
+                    "TerminationProvisions": {{}},
+                    "ObligationsComparison": {{}},
+                    "SpecialProvisions": {{}},
+                    "RiskAssessment": {{}},
+                    "OverallRecommendation": {{}}
+                }}
 
-Thank you for your comprehensive and detailed analysis.
-"""
+            Under each main key, please include:
+            - "differences": [list of specific differences]
+            - "favorableAgreement": "Summary1" or "Summary2"
+            - "concernPoints": [list of potential issues]
+            - "missingInformation": [list of unclear or missing items]
+            - "recommendations": [specific suggestions]
 
-        data = {
-            "contents": [{
-                "parts": [{"text": prompt}]
-            }]
-        }
-        params = {
-            "key": self.api_key
-        }
-        headers = {
-            "Content-Type": "application/json"
-        }
+            Thank you for your thorough analysis. Please provide detailed insights and actionable recommendations.
+        """
 
-        response = requests.post(GEMINI_API_URL, params=params, json=data, headers=headers)
+        data = {"contents": [{"parts": [{"text": prompt}]}]}
+        params = {"key": self.api_key}
+        headers = {"Content-Type": "application/json"}
+
+        response = requests.post(
+            GEMINI_API_URL, params=params, json=data, headers=headers
+        )
         if response.status_code == 200:
             # Assuming the API returns a JSON object containing the analysis
             response_json = response.json()
             # **Important:**  Gemini API response structure is different. You need to extract the text.
             # Check the documentation for the exact response structure.
             # Assuming the text is in 'candidates[0].content.parts[0].text'
-            if 'candidates' in response_json and response_json['candidates']:
-                if 'content' in response_json['candidates'][0] and response_json['candidates'][0]['content']['parts']:
-                    gemini_response_text = response_json['candidates'][0]['content']['parts'][0].get('text', "No text in response")
+            if "candidates" in response_json and response_json["candidates"]:
+                if (
+                    "content" in response_json["candidates"][0]
+                    and response_json["candidates"][0]["content"]["parts"]
+                ):
+                    gemini_response_text = response_json["candidates"][0]["content"][
+                        "parts"
+                    ][0].get("text", "No text in response")
 
                     # **Parse the Gemini response as JSON if it's formatted as JSON**
                     try:
                         analysis_json = json.loads(gemini_response_text)
                         return analysis_json
                     except json.JSONDecodeError:
-                        print("Warning: Gemini response is not valid JSON. Returning raw text response.")
-                        return {"raw_response": gemini_response_text} # Return raw text if JSON parsing fails
+                        print(
+                            "Warning: Gemini response is not valid JSON. Returning raw text response."
+                        )
+                        return {
+                            "raw_response": gemini_response_text
+                        }  # Return raw text if JSON parsing fails
                 else:
-                    return {"error": "Unexpected API response structure: content or parts missing"}
+                    return {
+                        "error": "Unexpected API response structure: content or parts missing"
+                    }
             else:
-                return {"error": "Unexpected API response structure: candidates missing"}
+                return {
+                    "error": "Unexpected API response structure: candidates missing"
+                }
 
         else:
-            raise Exception(f"Gemini API request failed: {response.status_code} - {response.text}")
+            raise Exception(
+                f"Gemini API request failed: {response.status_code} - {response.text}"
+            )
 
     def chat(self, message):
         # Build a follow-up chat prompt that references the context of our prior comparison
         prompt = f"""
-Dear Gemini AI,
+        Dear Legal AI Assistant,
 
-Following our previous comparison of the vehicle lease agreements, I have a follow-up question. Please provide a detailed answer based on your previous analysis and any additional insights you might have.
+        Following our previous comparison of the vehicle lease agreements, I have a follow-up question. 
+        Please provide a detailed answer based on your previous analysis and any additional insights you might have.
 
-Follow-up question:
-"{message}"
+        Follow-up question:
+        "{message}"
 
-Please ensure your response is clear and detailed.
-"""
-        data = {
-            "contents": [{
-                "parts": [{"text": prompt}]
-            }]
-        }
-        params = {
-            "key": self.api_key
-        }
-        headers = {
-            "Content-Type": "application/json"
-        }
+        Please ensure your response is clear and detailed.
+        """
+        data = {"contents": [{"parts": [{"text": prompt}]}]}
+        params = {"key": self.api_key}
+        headers = {"Content-Type": "application/json"}
 
-        response = requests.post(GEMINI_API_URL, params=params, json=data, headers=headers)
+        response = requests.post(
+            GEMINI_API_URL, params=params, json=data, headers=headers
+        )
         if response.status_code == 200:
-             response_json = response.json()
-             if 'candidates' in response_json and response_json['candidates']:
-                if 'content' in response_json['candidates'][0] and response_json['candidates'][0]['content']['parts']:
-                    return {"response": response_json['candidates'][0]['content']['parts'][0].get('text', "No text in response")}
+            response_json = response.json()
+            if "candidates" in response_json and response_json["candidates"]:
+                if (
+                    "content" in response_json["candidates"][0]
+                    and response_json["candidates"][0]["content"]["parts"]
+                ):
+                    return {
+                        "response": response_json["candidates"][0]["content"]["parts"][
+                            0
+                        ].get("text", "No text in response")
+                    }
                 else:
-                    return {"error": "Unexpected API response structure: content or parts missing"}
-             else:
-                return {"error": "Unexpected API response structure: candidates missing"}
+                    return {
+                        "error": "Unexpected API response structure: content or parts missing"
+                    }
+            else:
+                return {
+                    "error": "Unexpected API response structure: candidates missing"
+                }
         else:
-            raise Exception(f"Gemini API request failed: {response.status_code} - {response.text}")
+            raise Exception(
+                f"Gemini API request failed: {response.status_code} - {response.text}"
+            )
+
 
 def main():
-    # Hard-coded summaries
-    summary1 = (
-        "The lease contract offers a monthly payment plan of $500, payable on the 1st of every month. "
-        "It spans 36 months with an option to renew for an additional 12 months at a predetermined rate. "
-        "Early termination is permitted with a fee equivalent to three months’ rent. The lessee is required "
-        "to maintain comprehensive insurance and perform regular maintenance on the vehicle."
-    )
 
-    summary2 = (
-        "This lease agreement sets the monthly payment at $520, with payments due by the 5th day of each month. "
-        "The lease is valid for 36 months, but there is no renewal option available. Early termination is allowed "
-        "without penalty provided a 60-day notice is given. The lessee must secure minimal liability insurance, "
-        "with minor maintenance responsibilities, while major repairs are covered by the lessor."
-    )
+    # NOTE: get summaries from txt files
+    summary1 = open(
+        r"C:\Users\mh407\OneDrive\Documents\HackaThon\covenant-ai\rag\data\summarized\summary_Extract1.txt",
+        "r",
+    ).read()
+
+    summary2 = open(
+        r"C:\Users\mh407\OneDrive\Documents\HackaThon\covenant-ai\rag\data\summarized\summary_Extract2.txt",
+        "r",
+    ).read()
 
     # Initialize the Gemini agent (replace 'YOUR_GEMINI_API_KEY' with your actual API key)
     load_dotenv()
 
     api_key = os.getenv("GEMINI_API_KEY")
     if not api_key:
-        print("Error: GEMINI_API_KEY not found in .env file. Please create a .env file and set GEMINI_API_KEY.")
+        print(
+            "Error: GEMINI_API_KEY not found in .env file. Please create a .env file and set GEMINI_API_KEY."
+        )
         return
 
     agent = GeminiAgent(api_key)
@@ -182,6 +245,7 @@ def main():
             print(json.dumps(chat_response, indent=4))
         except Exception as e:
             print("Error during chat:", e)
+
 
 if __name__ == "__main__":
     main()
