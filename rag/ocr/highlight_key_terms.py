@@ -271,4 +271,4 @@ def highlight_pdf_document(
 #        highlighted_pdf = highlight_pdf_document(pdf_file, summary)
 #        return send_file(io.BytesIO(highlighted_pdf), mimetype="application/pdf", as_attachment=True, attachment_filename="highlighted.pdf")
 #
-# Remove or modify any __main__ testing code as needed.
+# Remove or modify any __main__ testing code as needed. 
