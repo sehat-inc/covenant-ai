@@ -1,4 +1,0 @@
-supabase: Client = create_client(
-    "https://zxdqktkeqtvurdkpoepe.supabase.co",
-    "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inp4ZHFrdGtlcXR2dXJka3BvZXBlIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTczODUxNzkwNSwiZXhwIjoyMDU0MDkzOTA1fQ.JnUAPMPijFr8S7OqmY2P6sZBIoa2ZvOZKf_Kt7O9hhQ"
-)
