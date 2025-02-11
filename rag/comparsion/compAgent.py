@@ -204,8 +204,8 @@ def main():
     performs summary comparison, and prints the results in JSON format.
     """
     # NOTE: get summaries from txt files - Update file paths as needed for your system
-    summary1_path = r"C:\Users\mh407\OneDrive\Documents\HackaThon\covenant-ai\rag\data\summarized\summary_Extract1.txt" # r prefix for raw string, avoid backslash issues
-    summary2_path = r"C:\Users\mh407\OneDrive\Documents\HackaThon\covenant-ai\rag\data\summarized\summary_Extract2.txt"
+    summary1_path = r"C:\Users\mh407\OneDrive\Documents\HackaThon\covenant-ai\rag\data\summarized\summary_Extract3.txt" # r prefix for raw string, avoid backslash issues
+    summary2_path = r"C:\Users\mh407\OneDrive\Documents\HackaThon\covenant-ai\rag\data\summarized\summary_Extract4.txt"
 
     try:
         with open(summary1_path, "r", encoding="utf-8") as f1, open(summary2_path, "r", encoding="utf-8") as f2: # Explicit encoding for robustness
