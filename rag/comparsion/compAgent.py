@@ -2,16 +2,40 @@ import requests
 import json
 from dotenv import load_dotenv
 import os
+import time
 
-
-GEMINI_API_URL = (
-    "https://generativelanguage.googleapis.com/v1beta/models/gemini-pro:generateContent"
-)
+GEMINI_API_URL =          "https://generativelanguage.googleapis.com/v1beta/models/gemini-pro:generateContent"  # Added URL for content generation
+GEMINI_COUNT_TOKENS_URL = "https://generativelanguage.googleapis.com/v1beta/models/gemini-pro:countTokens"  # Added URL for token counting
 
 
 class GeminiAgent:
     def __init__(self, api_key):
         self.api_key = api_key
+
+    def count_tokens(self, text):
+        data = {
+            "contents": [
+                {
+                    "parts": [
+                        {"text": text}
+                    ]
+                }
+            ]
+        }
+        params = {"key": self.api_key}
+        headers = {"Content-Type": "application/json"}
+
+        response = requests.post(
+            GEMINI_COUNT_TOKENS_URL, params=params, json=data, headers=headers
+        )
+
+        if response.status_code == 200:
+            response_json = response.json()
+            return response_json.get("totalTokens", 0)
+        else:
+            raise Exception(
+                f"Gemini Token Count API request failed: {response.status_code} - {response.text}"
+            )
 
     def compare_summaries(self, summary1, summary2):
         # Build a very detailed prompt for comparing the two summaries
@@ -104,7 +128,16 @@ class GeminiAgent:
 
             Thank you for your thorough analysis. Please provide detailed insights and actionable recommendations.
         """
+        # Count tokens for both summaries and the prompt
+        summary1_tokens = self.count_tokens(summary1)  # Added token count for summary1
+        summary2_tokens = self.count_tokens(summary2)  # Added token count for summary2
+        prompt_tokens = self.count_tokens(prompt)       # Added token count for prompt
 
+        print(f"Summary 1 Tokens: {summary1_tokens}")  # Print token counts
+        print(f"Summary 2 Tokens: {summary2_tokens}")
+        print(f"Prompt Tokens: {prompt_tokens}")
+        print(f"Total Tokens: {summary1_tokens + summary2_tokens + prompt_tokens}")
+        
         data = {"contents": [{"parts": [{"text": prompt}]}]}
         params = {"key": self.api_key}
         headers = {"Content-Type": "application/json"}
@@ -152,64 +185,14 @@ class GeminiAgent:
                 f"Gemini API request failed: {response.status_code} - {response.text}"
             )
 
-    def chat(self, message):
-        # Build a follow-up chat prompt that references the context of our prior comparison
-        prompt = f"""
-        Dear Legal AI Assistant,
-
-        Following our previous comparison of the vehicle lease agreements, I have a follow-up question. 
-        Please provide a detailed answer based on your previous analysis and any additional insights you might have.
-
-        Follow-up question:
-        "{message}"
-
-        Please ensure your response is clear and detailed.
-        """
-        data = {"contents": [{"parts": [{"text": prompt}]}]}
-        params = {"key": self.api_key}
-        headers = {"Content-Type": "application/json"}
-
-        response = requests.post(
-            GEMINI_API_URL, params=params, json=data, headers=headers
-        )
-        if response.status_code == 200:
-            response_json = response.json()
-            if "candidates" in response_json and response_json["candidates"]:
-                if (
-                    "content" in response_json["candidates"][0]
-                    and response_json["candidates"][0]["content"]["parts"]
-                ):
-                    return {
-                        "response": response_json["candidates"][0]["content"]["parts"][
-                            0
-                        ].get("text", "No text in response")
-                    }
-                else:
-                    return {
-                        "error": "Unexpected API response structure: content or parts missing"
-                    }
-            else:
-                return {
-                    "error": "Unexpected API response structure: candidates missing"
-                }
-        else:
-            raise Exception(
-                f"Gemini API request failed: {response.status_code} - {response.text}"
-            )
-
-
 def main():
 
     # NOTE: get summaries from txt files
     summary1 = open(
-        r"C:\Users\mh407\OneDrive\Documents\HackaThon\covenant-ai\rag\data\summarized\summary_Extract1.txt",
-        "r",
-    ).read()
+        r"C:\Users\mh407\OneDrive\Documents\HackaThon\covenant-ai\rag\data\summarized\summary_Extract1.txt","r",).read()
 
     summary2 = open(
-        r"C:\Users\mh407\OneDrive\Documents\HackaThon\covenant-ai\rag\data\summarized\summary_Extract2.txt",
-        "r",
-    ).read()
+        r"C:\Users\mh407\OneDrive\Documents\HackaThon\covenant-ai\rag\data\summarized\summary_Extract2.txt","r",).read()
 
     # Initialize the Gemini agent (replace 'YOUR_GEMINI_API_KEY' with your actual API key)
     load_dotenv()
@@ -222,7 +205,7 @@ def main():
         return
 
     agent = GeminiAgent(api_key)
-
+    start = time.time()
     # Step 2: Comparison Request
     try:
         print("Performing comparison of the two summaries...\n")
@@ -231,21 +214,7 @@ def main():
         print(json.dumps(comparison_result, indent=4))
     except Exception as e:
         print("Error during comparison:", e)
-
-    # Chat loop for follow-up questions
-    print("\nEnter follow-up questions for Gemini AI. Type 'exit' to quit.")
-    while True:
-        user_input = input("Your question: ")
-        if user_input.strip().lower() == "exit":
-            print("Exiting chat.")
-            break
-        try:
-            chat_response = agent.chat(user_input)
-            print("Gemini AI Response:")
-            print(json.dumps(chat_response, indent=4))
-        except Exception as e:
-            print("Error during chat:", e)
-
-
+    end = time.time()
+    print(f"Time taken: {end-start} seconds")
 if __name__ == "__main__":
     main()
