@@ -54,10 +54,10 @@ class GeminiAgent:
                 I need you to act as an expert Contract Analyst specializing in lease agreement comparisons.
                 I have two lease summaries that need to be meticulously compared. Please analyze them with extreme attention to detail and output the result as a JSON object.
 
-                SUMMARY 1:
+                Contract 1:
                 {summary1}
 
-                SUMMARY 2:
+                Contract 2:
                 {summary2}
 
                 Please perform an exhaustive analysis focusing on these specific areas:
@@ -112,7 +112,7 @@ class GeminiAgent:
 
                 For each category, provide:
                 1. Exact differences with specific details.
-                2. Which agreement has more favorable terms (Summary1, Summary2, or Neutral).
+                2. Which agreement has more favorable terms (Contract 1, Contract 2, or Neutral).
                 3. Specific examples where terms differ.
                 4. Note any missing information that should be clarified.
                 5. Flag any potentially problematic clauses or conditions.
@@ -130,7 +130,7 @@ class GeminiAgent:
                 {{
                     "FinancialAnalysis": {{
                         "differences": [],
-                        "favorableAgreement": "Summary1" or "Summary2" or "Neutral",
+                        "favorableAgreement": "Contract 1" or "Contract 2" or "Neutral",
                         "concernPoints": [],
                         "missingInformation": [],
                         "recommendations": []
@@ -142,7 +142,7 @@ class GeminiAgent:
                     "RiskAssessment": {{ ... }},
                     "OverallRecommendation": {{
                         "summary": "...",
-                        "agreementRecommendation": "Summary1" or "Summary2" or "Neutral",
+                        "agreementRecommendation": "Contract 1" or "Contract 2" or "Neutral",
                         "keyTakeaways": []
                     }}
                 }}
