@@ -10,46 +10,53 @@
         <p>PDF Filename: {{ contract.contract_pdf }}</p>
     </div>
 
-
-<div class="container py-5">
-    <div class="row mb-4">
-        <div class="col">
-            <h1>Contract Details</h1>
-            <p class="text-muted">Uploaded on: {{ contract.created_at|format_datetime }}</p>
+    <div class="container py-5">
+        <div class="row mb-4">
+            <div class="col">
+                <h1>Contract Details</h1>
+                <p class="text-muted">Uploaded on: {{ contract.created_at|format_datetime }}</p>
+            </div>
         </div>
-    </div>
 
-    <div class="btn-group" role="group">
-        <a href="{{ contract.pdf_url }}" target="_blank" class="btn btn-primary">
-            View Contract
-        </a>
-        <a href="{{ url_for('download_contract', contract_id=contract.id) }}" class="btn btn-secondary">
-            Download Contract
-        </a>
-    </div>
+        <div class="btn-group" role="group">
+            <a href="{{ contract.pdf_url }}" target="_blank" class="btn btn-primary">
+                View Contract
+            </a>
+            <a href="{{ url_for('download_contract', contract_id=contract.id) }}" class="btn btn-secondary">
+                Download Contract
+            </a>
+        </div>
 
-    <div class="row">
-        <div class="col">
-            <div class="card">
-                <div class="card-body">
-                    <h5 class="card-title">Contract Summary</h5>
-                    <div class="contract-summary">
-                        {{ contract.contract_summary|safe }}
+        <div class="row">
+            <div class="col">
+                <div class="card">
+                    <div class="card-body">
+                        <h5 class="card-title">Contract Summary</h5>
+                        <div class="contract-summary">
+                            {{ contract.contract_summary|safe }}
+                        </div>
                     </div>
                 </div>
             </div>
         </div>
+        <br>
+        <form action="{{ url_for('highlight_pdf', id=contract.id) }}" method="post">
+            <div class="form-group">
+                <label for="summary">Summary for Highlighting</label>
+                <textarea class="form-control" id="summary" name="summary" rows="3" required>{{ contract.contract_summary }}</textarea>
+            </div>
+            <button type="submit" class="btn btn-primary">Highlight key terms</button>
+        </form>
     </div>
-    <br>
-    <a href="" class="btn btn-primary">
-        Highlight key terms
-    </a>
-</div>
 
-<!-- Floating Chat Button -->
-<div class="position-fixed bottom-0 end-0 p-3">
-    <button class="btn btn-primary rounded-circle" style="width: 60px; height: 60px;">
-        <i class="bi bi-chat-dots-fill"></i>
-    </button>
+    <!-- Floating Chat Button -->
+    <div class="position-fixed bottom-0 end-0 p-3">
+        <button class="btn btn-primary rounded-circle" style="width: 60px; height: 60px;">
+            <i class="bi bi-chat-dots-fill"></i>
+        </button>
+    </div>
 </div>
+{% if contract.highlight_pdf %}
+    <iframe src="{{ contract.highlight_pdf_url }}" width="100%" height="600px"></iframe>
+{% endif %}
 {% endblock %}

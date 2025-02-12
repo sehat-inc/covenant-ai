@@ -5,7 +5,6 @@ Purpose: Module to highlight key terms in a PDF document based on a summary.
          This module is intended for integration with a Flask application.
 """
 
-import io
 import fitz
 import time
 import re

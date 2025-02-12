@@ -29,7 +29,6 @@ logger = logging.getLogger(__name__)
 @dataclass
 class TableData:
     """Data class to store table information"""
-
     content: List[List[str]]
     page_number: int
     location: Tuple[float, float, float, float]

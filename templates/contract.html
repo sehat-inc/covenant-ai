@@ -1,0 +1,6 @@
+<!-- ...existing code... -->
+{% if contract.highlight_pdf %}
+    <h2>Highlighted PDF</h2>
+    <iframe src="{{ supabase.storage.from_(BUCKET_NAME).get_public_url(contract.highlight_pdf) }}" width="100%" height="600px"></iframe>
+{% endif %}
+<!-- ...existing code... -->
