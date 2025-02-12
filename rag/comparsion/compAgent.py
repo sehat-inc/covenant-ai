@@ -26,25 +26,6 @@ class GeminiAgent:
         genai.configure(api_key=api_key)
         self.model = genai.GenerativeModel(model_name)
 
-    def count_tokens(self, text: str) -> int:
-        """
-        Counts the number of tokens in a given text using the Gemini API.
-
-        Args:
-            text (str): The text to count tokens for.
-
-        Returns:
-            int: The total number of tokens in the text.
-
-        Raises:
-            Exception: If there is an error while counting tokens from Gemini API.
-        """
-        try:
-            response = self.model.count_tokens(text)
-            return response.total_tokens
-        except Exception as e:
-            raise Exception(f"Gemini Token Count Error: {e}")
-
     def compare_summaries(self, summary1: str, summary2: str) -> dict:
         """
         Compares two summaries using the Gemini API and enforces JSON output based on a detailed prompt with schema example.
@@ -153,45 +134,35 @@ class GeminiAgent:
 
         prompt = prompt_template.format(summary1=summary1, summary2=summary2)
 
+        response = self.model.generate_content(prompt)
+        gemini_response_text = response.text
+
+        # Enhanced JSON parsing with better cleanup
         try:
-            summary1_tokens = self.count_tokens(summary1)
-            summary2_tokens = self.count_tokens(summary2)
-            prompt_tokens = self.count_tokens(prompt)
-
-            print(f"Summary 1 Tokens: {summary1_tokens}")
-            print(f"Summary 2 Tokens: {summary2_tokens}")
-            print(f"Prompt Tokens: {prompt_tokens}")
-            print(f"Total Tokens: {summary1_tokens + summary2_tokens + prompt_tokens}")
-
-            response = self.model.generate_content(prompt)
-            gemini_response_text = response.text
-
-            # Enhanced JSON parsing with better cleanup
+            # Remove markdown code blocks if present
+            cleaned_text = re.sub(r'```json\s*|\s*```', '', gemini_response_text)
+            # Remove any leading/trailing whitespace
+            cleaned_text = cleaned_text.strip()
+            
+            # Parse the cleaned JSON
+            analysis_json = json.loads(cleaned_text)
+            return analysis_json
+            
+        except json.JSONDecodeError as je:
+            print(f"JSON parsing error: {je}")
+            # Attempt alternative cleanup if initial parsing fails
             try:
-                # Remove markdown code blocks if present
-                cleaned_text = re.sub(r'```json\s*|\s*```', '', gemini_response_text)
-                # Remove any leading/trailing whitespace
-                cleaned_text = cleaned_text.strip()
-                
-                # Parse the cleaned JSON
+                # More aggressive cleanup
+                cleaned_text = re.sub(r'[^\x20-\x7E]', '', cleaned_text)  # Remove non-printable chars
+                cleaned_text = re.sub(r'\n\s*\n', '\n', cleaned_text)     # Remove extra newlines
                 analysis_json = json.loads(cleaned_text)
                 return analysis_json
-                
-            except json.JSONDecodeError as je:
-                print(f"JSON parsing error: {je}")
-                # Attempt alternative cleanup if initial parsing fails
-                try:
-                    # More aggressive cleanup
-                    cleaned_text = re.sub(r'[^\x20-\x7E]', '', cleaned_text)  # Remove non-printable chars
-                    cleaned_text = re.sub(r'\n\s*\n', '\n', cleaned_text)     # Remove extra newlines
-                    analysis_json = json.loads(cleaned_text)
-                    return analysis_json
-                except json.JSONDecodeError:
-                    print("Failed to parse JSON even after cleanup. Returning raw response.")
-                    return {
-                        "error": "Failed to parse JSON response",
-                        "raw_response": gemini_response_text
-                    }
+            except json.JSONDecodeError:
+                print("Failed to parse JSON even after cleanup. Returning raw response.")
+                return {
+                    "error": "Failed to parse JSON response",
+                    "raw_response": gemini_response_text
+                }
 
         except Exception as e:
             raise Exception(f"Gemini API request failed: {e}")
