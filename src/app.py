@@ -4,7 +4,7 @@ import os
 project_root = os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
 sys.path.append(project_root)
 
-# Import project modules
+
 
 from sentence_transformers import SentenceTransformer
 from rag.core.chunking import SemanticChunker
@@ -17,6 +17,8 @@ import google.generativeai as genai
 import tempfile
 from datetime import datetime
 from rag.ocr.highlight_key_terms import highlight_pdf_document
+from dotenv import load_dotenv
+load_dotenv()   
 
 app = Flask(__name__)
 app.config['UPLOAD_FOLDER'] = 'uploads'
@@ -27,7 +29,7 @@ supabase: Client = create_client(
     os.getenv('ROLE_KEY')
 )
 
-#fixed it
+
 # Initialize Gemini for summarization
 genai.configure(api_key=os.getenv('GEMINI_API'))
 model = genai.GenerativeModel("gemini-1.5-flash")

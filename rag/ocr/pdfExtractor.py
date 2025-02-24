@@ -15,8 +15,6 @@ from dataclasses import dataclass
 import fitz  # PyMuPDF
 from PIL import Image
 import pytesseract
-import os
-import time
 
 # Configure logging
 logging.basicConfig(

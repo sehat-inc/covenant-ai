@@ -47,3 +47,4 @@ htmlcov/
 
 firebase_api.json
 supabaseclient.py 
+covEnv*
