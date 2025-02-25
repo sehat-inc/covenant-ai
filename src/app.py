@@ -4,8 +4,6 @@ import os
 project_root = os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
 sys.path.append(project_root)
 
-
-
 from sentence_transformers import SentenceTransformer
 from rag.core.chunking import SemanticChunker
 from rag.ocr.pdfExtractor import PDFTextExtractor
@@ -16,10 +14,9 @@ from rag.core.summarizer import SummarizerAgent
 import google.generativeai as genai
 import tempfile
 from datetime import datetime
-from rag.ocr.highlight_key_terms import highlight_pdf_document
+from rag.ocr.highlight_key_terms import PDFHighlighter
 from dotenv import load_dotenv
 load_dotenv()   
-
 app = Flask(__name__)
 app.config['UPLOAD_FOLDER'] = 'uploads'
 os.makedirs(app.config['UPLOAD_FOLDER'], exist_ok=True)
@@ -29,13 +26,21 @@ supabase: Client = create_client(
     os.getenv('ROLE_KEY')
 )
 
+BUCKET_NAME = 'contract-files'  # Changed bucket name to be more specific
+
+# Initialize models and services only once at the start
+print("Initializing SentenceTransformer - This should happen only once")
+encoder = SentenceTransformer("all-MiniLM-L6-v2") 
 
 # Initialize Gemini for summarization
 genai.configure(api_key=os.getenv('GEMINI_API'))
 model = genai.GenerativeModel("gemini-1.5-flash")
 summarizer = SummarizerAgent(llm=model)
 
-BUCKET_NAME = 'contract-files'  # Changed bucket name to be more specific
+# Create chunker with the encoder
+chunker = SemanticChunker(model=encoder, min_tokens=100, max_tokens=1024)
+
+highlighter = PDFHighlighter(model=encoder)
 
 # Custom filter for datetime formatting
 @app.template_filter('format_datetime')
@@ -66,25 +71,28 @@ def upload_file():
     
     if file and file.filename.lower().endswith('.pdf'):
         try:
-            
-            encoder = SentenceTransformer("all-MiniLM-L6-v2") 
             # Save file temporarily
             temp_dir = tempfile.mkdtemp()
             temp_path = os.path.join(temp_dir, secure_filename(file.filename))
             file.save(temp_path)
+            
             # Extract text using OCR
             extractor = PDFTextExtractor(temp_path)
             extracted_content = extractor.extract_text()
             print("Extraction done ", datetime.now().time())
+            
             # Get text from all pages
             all_text = "\n".join([page['text'] for page in extracted_content['text']])
-            chunker = SemanticChunker(model=encoder, min_tokens=100, max_tokens=1024)
+            
+            # Use the pre-initialized chunker instead of creating a new one
             chunked_text = chunker.chunk_text(text=all_text)
             print("Chunking done: ", datetime.now().time())
             print("Chunked text: ", chunked_text)
+            
             # Generate summary
             summary = summarizer._run(text=all_text)
             print("Summary made: ", datetime.now().time())
+            
             # Generate unique filename
             timestamp = datetime.now().strftime('%Y%m%d_%H%M%S')
             file_name = f"{timestamp}_{secure_filename(file.filename)}"
@@ -110,6 +118,7 @@ def upload_file():
             insert_result = supabase.table('Contract').insert(contract_data).execute()
             print(f"Database insert result: {insert_result}")
             print(datetime.now().time())
+            
             # Cleanup
             os.remove(temp_path)
             os.rmdir(temp_dir)
@@ -150,8 +159,8 @@ def highlight_pdf(id):
         # Download the original PDF from Supabase Storage
         pdf_data = supabase.storage.from_(BUCKET_NAME).download(contract['contract_pdf'])
         
-        # Highlight PDF based on summary
-        highlighted_pdf_bytes = highlight_pdf_document(pdf_data, summary)
+        # Pass the global encoder instance instead of creating a new one
+        highlighted_pdf_bytes = highlighter.process_pdf(pdf_data, summary)
         
         # Generate unique filename for highlighted PDF
         timestamp = datetime.now().strftime('%Y%m%d_%H%M%S')
@@ -194,20 +203,19 @@ def view_highlighted_pdf(id):
 
 @app.route('/contract/<int:id>')
 def view_contract(id):
-   
-        # Fetch contract details from Supabase
-        response = supabase.table('Contract').select('*').eq('id', id).execute()
-        if not response.data:
-            return "Contract not found", 404
-        
-        contract = response.data[0]
-        
-        # Get public URL correctly
-        # Remove any full URLs or double slashes from the filename
-        filename = contract['contract_pdf'].split('/')[-1]
-        contract['pdf_url'] = supabase.storage.from_(BUCKET_NAME).get_public_url(filename)
-        
-        return render_template('contract.html', contract=contract)
+    # Fetch contract details from Supabase
+    response = supabase.table('Contract').select('*').eq('id', id).execute()
+    if not response.data:
+        return "Contract not found", 404
+    
+    contract = response.data[0]
+    
+    # Get public URL correctly
+    # Remove any full URLs or double slashes from the filename
+    filename = contract['contract_pdf'].split('/')[-1]
+    contract['pdf_url'] = supabase.storage.from_(BUCKET_NAME).get_public_url(filename)
+    
+    return render_template('contract.html', contract=contract)
 
 
 @app.route('/download/<int:contract_id>')
@@ -246,3 +254,5 @@ def download_contract(contract_id):
 
 if __name__ == '__main__':
     app.run(debug=True)
+
+

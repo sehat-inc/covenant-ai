@@ -5,16 +5,12 @@ from typing import List
 import logging
 import time
 import sys
-from sentence_transformers import SentenceTransformer
-
 
 logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s", 
                     handlers=[logging.StreamHandler(sys.stdout)], force=True)
 
-model = SentenceTransformer("all-MiniLM-L6-v2")
-
 class SemanticChunker: 
-    def __init__(self, model=model, min_tokens: int = 100, max_tokens: int = 500, buffer_size: int = 1):
+    def __init__(self, model, min_tokens: int = 100, max_tokens: int = 500, buffer_size: int = 1):
         self.model = model
         self.sentence_split_pattern = re.compile(r'(?<=[.?!])(?:\s+|\n)')
         self.batch_size = 16
@@ -177,16 +173,3 @@ def read_text_file(file_path: str) -> str:
     """Reads a text file and returns its content as a string."""
     with open(file_path, 'r', encoding='utf-8') as file:
         return file.read()
-
-def main():
-
-    file_path = "/home/ali-vijdaan/Projects/covenant-ai/rag/data/processed/Extract4_extracted.txt"
-    text = read_text_file(file_path)
-
-    chunker = SemanticChunker(model=model, min_tokens=100, max_tokens=1024)
-    chunked_text = chunker.chunk_text(text=text)
-
-    return chunked_text
-
-if __name__ == "__main__":
-    main()
